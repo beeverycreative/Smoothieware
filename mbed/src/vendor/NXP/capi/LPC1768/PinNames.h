@@ -65,6 +65,8 @@ typedef enum {
     p28 = P0_10,
     p29 = P0_5,
     p30 = P0_4,
+	p31 = P0_2,
+	p32 = P0_3,
 
     // Other mbed Pin Names
 #ifdef MCB1700
@@ -78,8 +80,8 @@ typedef enum {
     LED3 = P1_21,
     LED4 = P1_23,
 #endif
-    USBTX = P0_2,
-    USBRX = P0_3,
+    USBTX = P4_28,
+    USBRX = P4_29,
 
     // Not connected
     NC = (int)0xFFFFFFFF
