@@ -43,7 +43,7 @@ private:
     PinName _pin_to_pinname(Pin *pin);
     mbed::ADC *adc;
 
-    static const int num_channels= 6;
+    static const int num_channels= 8;
 #ifdef OVERSAMPLE
     // we need 4^n sample to oversample and we get double that to filter out spikes
     static const int num_samples= powf(4, OVERSAMPLE)*2;

@@ -135,10 +135,13 @@ PinName Adc::_pin_to_pinname(Pin *pin)
     } else if( pin->port == LPC_GPIO1 && pin->pin == 30 ) {
         return p19;
     } else if( pin->port == LPC_GPIO1 && pin->pin == 31 ) {
-        return p20;
+    	return p20;
+    } else if( pin->port == LPC_GPIO0 && pin->pin == 2 ) {
+    	return p31;
+    } else if( pin->port == LPC_GPIO0 && pin->pin == 3 ) {
+    	return p32;
     } else {
         //TODO: Error
         return NC;
     }
 }
-

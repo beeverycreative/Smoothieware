@@ -145,23 +145,29 @@ int ADC::_pin_to_channel(PinName pin) {
         case p20://=p1.31 of LPC1768
             chan=5;
             break;
+        case p32://=p0.3 of LPC1768
+            chan=6;
+            break;
+        case p31://=p0.2 of LPC1768
+            chan=7;
+            break;
     }
     return(chan);
 }
 
 PinName ADC::channel_to_pin(int chan) {
-    const PinName pin[8]={p15, p16, p17, p18, p19, p20, p15, p15};
+    const PinName pin[8]={p15, p16, p17, p18, p19, p20, p32, p31};
 
-    if ((chan < 0) || (chan > 5))
+    if ((chan < 0) || (chan > 7))
         fprintf(stderr, "ADC channel %u is outside range available to MBED pins.\n", chan);
     return(pin[chan & 0x07]);
 }
 
 
 int ADC::channel_to_pin_number(int chan) {
-    const int pin[8]={15, 16, 17, 18, 19, 20, 0, 0};
+    const int pin[8]={15, 16, 17, 18, 19, 20, 32, 31};
 
-    if ((chan < 0) || (chan > 5))
+    if ((chan < 0) || (chan > 7))
         fprintf(stderr, "ADC channel %u is outside range available to MBED pins.\n", chan);
     return(pin[chan & 0x07]);
 }
@@ -188,6 +194,10 @@ uint32_t ADC::_data_of_pin(PinName pin) {
                 return(LPC_ADC->ADINTEN & 0x10?_adc_data[4]:LPC_ADC->ADDR4);
             case p20://=p1.31 of LPC1768
                 return(LPC_ADC->ADINTEN & 0x20?_adc_data[5]:LPC_ADC->ADDR5);
+            case p32://=p0.3 of LPC1768
+                return(LPC_ADC->ADINTEN & 0x40?_adc_data[6]:LPC_ADC->ADDR6);
+            case p31://=p0.2 of LPC1768
+                return(LPC_ADC->ADINTEN & 0x80?_adc_data[7]:LPC_ADC->ADDR7);
         }
     }
 }
@@ -196,6 +206,10 @@ uint32_t ADC::_data_of_pin(PinName pin) {
 void ADC::setup(PinName pin, int state) {
     int chan;
     chan=_pin_to_channel(pin);
+
+    //THEKERNEL->streams->printf("Configuring channel %d",chan);
+    fprintf(stderr,"Configuring channel %u\n",chan);
+
     if ((state & 1) == 1) {
         switch(pin) {
             case p15://=p0.23 of LPC1768
@@ -235,6 +249,18 @@ void ADC::setup(PinName pin, int state) {
                 LPC_PINCON->PINMODE3 &= ~((unsigned int)0x3 << 30);
                 LPC_PINCON->PINMODE3 |= (unsigned int)0x2 << 30;
                break;
+            case p32://=p0.3 of LPC1768
+                LPC_PINCON->PINSEL0 &= ~((unsigned int)0x3 << 6);
+                LPC_PINCON->PINSEL0 |= (unsigned int)0x2 << 6;
+                LPC_PINCON->PINMODE0 &= ~((unsigned int)0x3 << 6);
+                LPC_PINCON->PINMODE0 |= (unsigned int)0x2 << 6;
+               break;
+            case p31://=p0.2 of LPC1768
+                LPC_PINCON->PINSEL0 &= ~((unsigned int)0x3 << 4);
+                LPC_PINCON->PINSEL0 |= (unsigned int)0x2 << 4;
+                LPC_PINCON->PINMODE0 &= ~((unsigned int)0x3 << 4);
+                LPC_PINCON->PINMODE0 |= (unsigned int)0x2 << 4;
+               break;
         }
         //Only one channel can be selected at a time if not in burst mode
         if (!burst()) LPC_ADC->ADCR &= ~0xFF;
@@ -267,6 +293,14 @@ void ADC::setup(PinName pin, int state) {
             case p20://=p1.31 of LPC1768
                 LPC_PINCON->PINSEL3 &= ~((unsigned int)0x3 << 30);
                 LPC_PINCON->PINMODE3 &= ~((unsigned int)0x3 << 30);
+                break;
+            case p32://=p0.3 of LPC1768
+                LPC_PINCON->PINSEL0 &= ~((unsigned int)0x3 << 4);
+                LPC_PINCON->PINMODE0 &= ~((unsigned int)0x3 << 4);
+                break;
+            case p31://=p0.2 of LPC1768
+                LPC_PINCON->PINSEL0 &= ~((unsigned int)0x3 << 6);
+                LPC_PINCON->PINMODE0 &= ~((unsigned int)0x3 << 6);
                 break;
         }
         LPC_ADC->ADCR &= ~(1 << chan);
