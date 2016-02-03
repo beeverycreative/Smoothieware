@@ -106,7 +106,7 @@ temperature_control.bed.set_and_wait_m_code  190              #
 temperature_control.bed.designator           B                #
 
 # Switch module for fan control
-switch.fan.enable                            true             #
+switch.fan.enable                            false             #
 switch.fan.input_on_command                  M106             #
 switch.fan.input_off_command                 M107             #
 switch.fan.output_pin                        2.3              #
@@ -203,3 +203,26 @@ kill_button_pin                              2.12             # kill button pin.
 currentcontrol_module_enable                 false            #
 digipot_max_current                          2.4             # max current
 digipot_factor                               106.0           # factor for converting current to digipot value
+
+#
+#		BEEVERYCREATIVE Module Configs
+#
+beethefirst.enable			     true
+beethefirst.model			     PLUS
+
+#Blower
+beethefirst.blower_on_command                M106             #
+beethefirst.blower_off_command               M107             #
+beethefirst.blower_enable_pin		     1.1
+beethefirst.blower_startup_state	     false
+beethefirst.blower_pwm_pin		     2.3
+
+#Extruder Block Thermistor
+beethefirst.extruder_block_thermistor.enable			true
+beethefirst.extruder_block_thermistor.thermistor_pin		0.3             #
+beethefirst.extruder_block_thermistor.heater_pin		2.5              #
+beethefirst.extruder_block_thermistor.thermistor		Honeywell100K    # see http://smoothieware.org/temperaturecontrol#toc5
+#beethefirst.extruder_block_thermistor.beta			4066             # or set the beta value
+beethefirst.extruder_block_thermistor.r2			10000
+
+

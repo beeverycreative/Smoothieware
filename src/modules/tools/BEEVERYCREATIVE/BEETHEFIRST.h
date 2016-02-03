@@ -10,6 +10,7 @@
 
 #include "Pin.h"
 #include "Pwm.h"
+#include "../temperaturecontrol/Thermistor.h"
 #include <math.h>
 
 #include <string>
@@ -17,6 +18,7 @@ using std::string;
 
 class Gcode;
 class StreamOutput;
+class Thermistor;
 
 namespace mbed {
     class PwmOut;
@@ -34,6 +36,7 @@ class BEETHEFIRST : public Module {
         void on_get_public_data(void* argument);
         void on_set_public_data(void* argument);
         void on_halt(void *arg);
+        void on_second_tick(void *argument);
 
 
     private:
@@ -55,6 +58,16 @@ class BEETHEFIRST : public Module {
         uint8_t			blower_subcode;
         bool			blower_state;
         float			blower_value;
+
+        //Extruder Block
+        Thermistor		*extruder_block_thermistor;
+        float			extruder_temp;
+        Pin				*extruder_block_fan_on_pin;
+        Pwm				*extruder_block_fan_pwm_pin;
+        bool			extruder_block_fan_state;
+        float			extruder_block_fan_value;
+        bool			extruder_block_fan_auto_mode;
+        float			extruder_fan_min_temp;
 
 };
 
