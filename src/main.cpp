@@ -19,7 +19,7 @@
 #include "modules/tools/drillingcycles/Drillingcycles.h"
 #include "FilamentDetector.h"
 #include "MotorDriverControl.h"
-
+#include "modules/tools/BEEVERYCREATIVE/BEETHEFIRST.h"
 #include "modules/robot/Conveyor.h"
 #include "modules/utils/simpleshell/SimpleShell.h"
 #include "modules/utils/configurator/Configurator.h"
@@ -193,6 +193,9 @@ void init() {
     #endif
     #ifndef NO_UTILS_MOTORDRIVERCONTROL
     kernel->add_module( new MotorDriverControl(0) );
+    #endif
+	#ifndef NO_TOOLS_BEEVERYCREATIVE
+    kernel->add_module( new BEETHEFIRST() );
     #endif
     // Create and initialize USB stuff
     u.init();
