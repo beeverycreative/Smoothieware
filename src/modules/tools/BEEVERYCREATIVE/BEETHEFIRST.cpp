@@ -274,6 +274,8 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 			// drain queue
 			THEKERNEL->conveyor->wait_for_empty_queue();
 			this->send_gcode("G0 E65 F300");
+			this->send_gcode("G90");
+			this->send_gcode("G92 E0");
 		}
 		break;
 
@@ -288,6 +290,8 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 			this->send_gcode("G0 E25 F800");
 			this->send_gcode("G0 E-30 F2000");
 			this->send_gcode("G0 E-50 F200");
+			this->send_gcode("G90");
+			this->send_gcode("G92 E0");
 			THEKERNEL->conveyor->wait_for_empty_queue();
 		}
 		break;
