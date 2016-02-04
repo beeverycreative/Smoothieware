@@ -196,8 +196,8 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 	{
 		switch(gcode->m){
 
-		//M100 - Get Temperatures
-		case 100:
+		//M105 - Get Temperatures
+		case 105:
 		{
 			THEKERNEL->streams->printf("Extruder Block Temp: %f\n",extruder_temp);
 		}

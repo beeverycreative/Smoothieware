@@ -161,35 +161,35 @@ void init() {
     delete tp;
     #endif
     #ifndef NO_TOOLS_LASER
-    //kernel->add_module( new Laser() );
+    kernel->add_module( new Laser() );
     #endif
     #ifndef NO_TOOLS_SPINDLE
-    //kernel->add_module( new Spindle() );
+    kernel->add_module( new Spindle() );
     #endif
     #ifndef NO_UTILS_PANEL
-    //kernel->add_module( new Panel() );
+    kernel->add_module( new Panel() );
     #endif
     #ifndef NO_TOOLS_TOUCHPROBE
-    //kernel->add_module( new Touchprobe() );
+    kernel->add_module( new Touchprobe() );
     #endif
     #ifndef NO_TOOLS_ZPROBE
-    //kernel->add_module( new ZProbe() );
+    kernel->add_module( new ZProbe() );
     #endif
     #ifndef NO_TOOLS_SCARACAL
-    //kernel->add_module( new SCARAcal() );
+    kernel->add_module( new SCARAcal() );
     #endif
     #ifndef NONETWORK
-    //kernel->add_module( new Network() );
+    kernel->add_module( new Network() );
     #endif
     #ifndef NO_TOOLS_TEMPERATURESWITCH
     // Must be loaded after TemperatureControl
     kernel->add_module( new TemperatureSwitch() );
     #endif
     #ifndef NO_TOOLS_DRILLINGCYCLES
-    //kernel->add_module( new Drillingcycles() );
+    kernel->add_module( new Drillingcycles() );
     #endif
     #ifndef NO_TOOLS_FILAMENTDETECTOR
-    //kernel->add_module( new FilamentDetector() );
+    kernel->add_module( new FilamentDetector() );
     #endif
     #ifndef NO_UTILS_MOTORDRIVERCONTROL
     kernel->add_module( new MotorDriverControl(0) );

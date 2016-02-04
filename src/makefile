@@ -51,7 +51,7 @@ DEFINES += -D__GITVERSIONSTRING__=\"$(shell generate-version.bat)\"
 endif
 
 # use c++11 features for the checksums and set default baud rate for serial uart
-DEFINES += -DCHECKSUM_USE_CPP -DDEFAULT_SERIAL_BAUD_RATE=$(DEFAULT_SERIAL_BAUD_RATE)
+DEFINES += -DCHECKSUM_USE_CPP -DDEFAULT_SERIAL_BAUD_RATE=$(DEFAULT_SERIAL_BAUD_RATE) -DNONETWORK
 
 ifneq "$(STEPTICKER_DEBUG_PIN)" ""
 # Set a Pin here that toggles on end of move
@@ -60,6 +60,11 @@ endif
 
 # add any modules that you do not want included in the build
 EXCLUDE_MODULES = tools/touchprobe
+EXCLUDE_MODULES += tools/laser
+EXCLUDE_MODULES += tools/spindle
+EXCLUDE_MODULES += tools/scaracal
+
+
 # e.g for a CNC machine
 #export EXCLUDED_MODULES = tools/touchprobe tools/laser tools/temperaturecontrol tools/extruder
 
