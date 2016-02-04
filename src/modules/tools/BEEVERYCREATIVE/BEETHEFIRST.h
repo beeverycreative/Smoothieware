@@ -44,6 +44,8 @@ class BEETHEFIRST : public Module {
         bool match_blower_on_gcode(const Gcode* gcode) const;
         bool match_blower_off_gcode(const Gcode* gcode) const;
 
+        int send_gcode(const char* format, ...);
+
         string		beethefirst_model;
 
         //Blower stuff

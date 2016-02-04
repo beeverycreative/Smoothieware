@@ -268,6 +268,30 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 		}
 		break;
 
+		//M701 - Load Filament
+		case 701:
+		{
+			// drain queue
+			THEKERNEL->conveyor->wait_for_empty_queue();
+			this->send_gcode("G0 E65 F300");
+		}
+		break;
+
+		//M702 - Unoad Filament
+		case 702:
+		{
+			// drain queue
+			THEKERNEL->conveyor->wait_for_empty_queue();
+			this->send_gcode("G91");
+			this->send_gcode("G0 E15 F300");
+			this->send_gcode("G0 E-23 F1000");
+			this->send_gcode("G0 E25 F800");
+			this->send_gcode("G0 E-30 F2000");
+			this->send_gcode("G0 E-50 F200");
+			THEKERNEL->conveyor->wait_for_empty_queue();
+		}
+		break;
+
 		// you can have any number of case statements.
 		default : //Optional
 		{
@@ -296,7 +320,7 @@ void BEETHEFIRST::on_set_public_data(void *argument)
  ***************************************************************************************************/
 void BEETHEFIRST::on_second_tick(void *argument)
 {
-	/*
+
 	this->extruder_temp = this->extruder_block_thermistor->get_temperature();
 	if(this->extruder_block_fan_auto_mode)
 	{
@@ -326,11 +350,30 @@ void BEETHEFIRST::on_second_tick(void *argument)
 		}
 
 	}
-	*/
+
 	//THEKERNEL->streams->printf("Extruder Temp: %f\n",extruder_temp);
 	//float block_fan_speed = extruder_temp*5.77 - 281.15;
 	//this->extruder_block_fan_pwm_pin->pwm(block_fan_speed);
 	//this->extruder_block_fan_pwm_pin->pwm(255);
+}
+
+/* send a formatted Gcode line */
+int BEETHEFIRST::send_gcode(const char* format, ...)
+{
+	// handle variable arguments
+	va_list args;
+	va_start(args, format);
+	// make the formatted string
+	char line[32]; // max length for an gcode line
+	int n = vsnprintf(line, sizeof(line), format, args);
+	va_end(args);
+	// debug, print the gcode sended
+	//THEKERNEL->streams->printf(">>> %s\r\n", line);
+	// make gcode object and send it (right way)
+	Gcode gc(line, &(StreamOutput::NullStream));
+	THEKERNEL->call_event(ON_GCODE_RECEIVED, &gc);
+	// return the gcode srting length
+	return n;
 }
 
 

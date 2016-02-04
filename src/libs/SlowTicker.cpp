@@ -29,7 +29,7 @@ SlowTicker::SlowTicker(){
 
 
     // ISP button FIXME: WHy is this here?
-    ispbtn.from_string("2.10")->as_input()->pull_up();
+    //ispbtn.from_string("2.10")->as_input()->pull_up();
 
     // TODO: What is this ??
     flag_1s_flag = 0;
@@ -82,8 +82,8 @@ void SlowTicker::tick(){
 
     // Enter MRI mode if the ISP button is pressed
     // TODO: This should have it's own module
-    if (ispbtn.get() == 0)
-        __debugbreak();
+    //if (ispbtn.get() == 0)
+    //    __debugbreak();
 
 }
 
