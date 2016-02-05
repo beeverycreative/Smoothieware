@@ -41,9 +41,6 @@ class BEETHEFIRST : public Module {
 
     private:
 
-        bool match_blower_on_gcode(const Gcode* gcode) const;
-        bool match_blower_off_gcode(const Gcode* gcode) const;
-
         int send_gcode(const char* format, ...);
 
         string		beethefirst_model;
@@ -51,13 +48,6 @@ class BEETHEFIRST : public Module {
         //Blower stuff
         Pin				*blower_on_pin;
         Pwm				*blower_pwm_pin;
-        string			blower_output_on_command;
-        string			blower_output_off_command;
-        uint16_t 		blower_input_on_command_code;
-        uint16_t		blower_input_off_command_code;
-        char			blower_input_on_command_letter;
-        char			blower_input_off_command_letter;
-        uint8_t			blower_subcode;
         bool			blower_state;
         float			blower_value;
 
@@ -70,6 +60,9 @@ class BEETHEFIRST : public Module {
         float			extruder_block_fan_value;
         bool			extruder_block_fan_auto_mode;
         float			extruder_fan_min_temp;
+
+        //Printer Manual Calibration
+        int				currentCalibrationState;
 
 };
 

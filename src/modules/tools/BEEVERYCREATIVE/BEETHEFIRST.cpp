@@ -93,8 +93,8 @@ void BEETHEFIRST::on_config_reload(void *argument)
 	this->blower_pwm_pin->max_pwm(255);
 	this->blower_pwm_pin->set(false);
 	THEKERNEL->slow_ticker->attach(1000, this->blower_pwm_pin, &Pwm::on_tick);
-	this->blower_output_on_command = THEKERNEL->config->value(beethefirst_checksum, blower_checksum, on_command_checksum )->by_default("")->as_string();
-	this->blower_output_off_command = THEKERNEL->config->value(beethefirst_checksum, blower_checksum, off_command_checksum )->by_default("")->as_string();
+	//this->blower_output_on_command = THEKERNEL->config->value(beethefirst_checksum, blower_checksum, on_command_checksum )->by_default("")->as_string();
+	//this->blower_output_off_command = THEKERNEL->config->value(beethefirst_checksum, blower_checksum, off_command_checksum )->by_default("")->as_string();
 
 	/*
 	 * 			Load Extruder Block Config
@@ -123,60 +123,6 @@ void BEETHEFIRST::on_config_reload(void *argument)
 	this->blower_on_pin->set(this->blower_state);
 	this->blower_value = 0.0;
 
-
-	// Set the on/off command codes, Use GCode to do the parsing
-	blower_input_on_command_letter= 0;
-	blower_input_off_command_letter= 0;
-
-	if(!blower_output_on_command.empty())
-	{
-		Gcode gc(blower_output_on_command, NULL);
-		if(gc.has_g)
-		{
-			blower_input_on_command_letter = 'G';
-			blower_input_on_command_code = gc.g;
-			THEKERNEL->streams->printf("Blower ON Gcode: G%u\n",gc.g);
-		}
-		else if(gc.has_m)
-		{
-			blower_input_on_command_letter = 'M';
-			blower_input_on_command_code = gc.m;
-			THEKERNEL->streams->printf("Blower ON Mcode: M%u\n",gc.m);
-		}
-	}
-
-	if(!blower_output_off_command.empty())
-	{
-		Gcode gc(blower_output_off_command, NULL);
-		if(gc.has_g)
-		{
-			blower_input_off_command_letter = 'G';
-			blower_input_off_command_code = gc.g;
-			THEKERNEL->streams->printf("Blower OFF Gcode: G%u\n",gc.g);
-		}
-		else if(gc.has_m)
-		{
-			blower_input_off_command_letter = 'M';
-			blower_input_off_command_code = gc.m;
-			THEKERNEL->streams->printf("Blower OFF Mcode: M%u\n",gc.m);
-		}
-	}
-
-}
-
-bool BEETHEFIRST::match_blower_on_gcode(const Gcode *gcode) const
-{
-	bool b= ((blower_input_on_command_letter == 'M' && gcode->has_m && gcode->m == blower_input_on_command_code) ||
-			(blower_input_on_command_letter == 'G' && gcode->has_g && gcode->g == blower_input_on_command_code));
-
-	return (b && gcode->subcode == this->blower_subcode);
-}
-
-bool BEETHEFIRST::match_blower_off_gcode(const Gcode *gcode) const
-{
-	bool b= ((blower_input_off_command_letter == 'M' && gcode->has_m && gcode->m == blower_input_off_command_code) ||
-			(blower_input_off_command_letter == 'G' && gcode->has_g && gcode->g == blower_input_off_command_code));
-	return (b && gcode->subcode == this->blower_subcode);
 }
 
 void BEETHEFIRST::on_gcode_execute(void *argument)
@@ -190,16 +136,92 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 
 	if(gcode->has_g)
 	{
+		switch(gcode->g)
+		{
+		//G28 - Home axis
+		case 28:
+		{
+			//If calibration procedure is running, cancel it
+			if(this->currentCalibrationState != -1) this->currentCalibrationState = 0;
 
+		}
+		break;
+		//G131 - Start Calibration
+		case 131:
+		{
+			float initial_z = 2;
+			this->currentCalibrationState = -1;
+			send_gcode("G28");
+
+			if(gcode->has_letter('Z'))
+			{
+				initial_z = gcode->get_value('Z');
+			}
+
+			THEKERNEL->conveyor->wait_for_empty_queue();
+			//send_gcode("M204 S400 Z400");
+			send_gcode("G0 X0 Y65 Z%f F10000",initial_z);
+			//send_gcode("M204 S1000 Z1000");
+			this->currentCalibrationState = 0;
+		}
+		break;
+		//G132 - Proceed to next Calibration step
+		case 132:
+		{
+			switch(this->currentCalibrationState)
+			{
+			case 0:
+			{
+				THEKERNEL->conveyor->wait_for_empty_queue();
+				send_gcode("M306 Z0");
+				send_gcode("M500");
+
+				THEKERNEL->conveyor->wait_for_empty_queue();
+				send_gcode("G0 Z10 F1000");
+				THEKERNEL->conveyor->wait_for_empty_queue();
+				send_gcode("G0 X-30 Y-65 F15000");
+				THEKERNEL->conveyor->wait_for_empty_queue();
+				send_gcode("G0 Z0 F1000");
+
+				this->currentCalibrationState ++;
+			}
+			break;
+			case 1:
+			{
+				THEKERNEL->conveyor->wait_for_empty_queue();
+				send_gcode("G0 Z10 F1000");
+				THEKERNEL->conveyor->wait_for_empty_queue();
+				send_gcode("G0 X30 Y-65 F15000");
+				THEKERNEL->conveyor->wait_for_empty_queue();
+				send_gcode("G0 Z0 F1000");
+
+				this->currentCalibrationState ++;
+			}
+			break;
+			case 2:
+			{
+				THEKERNEL->conveyor->wait_for_empty_queue();
+				send_gcode("G28");
+			}
+			break;
+			default:
+			{
+
+			}
+			}
+		}
+		break;
+		}
 	}
 	else if(gcode->has_m)
 	{
-		switch(gcode->m){
-
-		//M105 - Get Temperatures
-		case 105:
+		switch(gcode->m)
 		{
-			THEKERNEL->streams->printf("Extruder Block Temp: %f\n",extruder_temp);
+		//M32 - Start SD Print
+		case 32:
+		{
+			this->extruder_block_fan_auto_mode = true;
+			this->extruder_block_fan_value = 0.0;
 		}
 		break;
 
@@ -265,6 +287,8 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 			this->extruder_block_fan_state = false;
 			this->extruder_block_fan_pwm_pin->set(false);
 			this->extruder_block_fan_auto_mode = false;
+			this->extruder_block_fan_value = 0.0;
+
 		}
 		break;
 
@@ -296,6 +320,13 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 		}
 		break;
 
+		//M1400 - Get BEETHEFIRST PLUS Temperatures
+		case 1400:
+		{
+			THEKERNEL->streams->printf("Extruder Block Temp: %f Fan Speed: %f\n",this->extruder_temp,this->extruder_block_fan_value);
+		}
+		break;
+
 		// you can have any number of case statements.
 		default : //Optional
 		{
@@ -324,36 +355,39 @@ void BEETHEFIRST::on_set_public_data(void *argument)
  ***************************************************************************************************/
 void BEETHEFIRST::on_second_tick(void *argument)
 {
-
 	this->extruder_temp = this->extruder_block_thermistor->get_temperature();
-	if(this->extruder_block_fan_auto_mode)
-	{
-		float extruder_fan_speed = this->extruder_temp * 8.75 - 276.25;
+	float extruder_fan_speed = 0.0;
 
-		if(this->extruder_block_fan_value == 0 && extruder_fan_speed > 30)
+	if(this->extruder_block_fan_auto_mode == true)
+	{
+		extruder_fan_speed = this->extruder_temp * 22.3125 - 704.4375;
+
+		if(this->extruder_block_fan_value == 0 && this->extruder_temp < 34)
 		{
-			if(extruder_fan_speed > 100) extruder_fan_speed = 100;
+			extruder_fan_speed = 0;
 
 		}
-		else if(extruder_fan_speed != 0)
+
+		if(extruder_fan_speed != 0)
 		{
 			if(this->extruder_temp < 32) extruder_fan_speed = 0;
 
-			if(extruder_fan_speed < 0) extruder_fan_speed = 0;
-			else if(extruder_fan_speed > 100) extruder_fan_speed = 100;
-		}
-
-		extruder_fan_speed = int(extruder_fan_speed * 2.55);
-
-		if(this->extruder_block_fan_value != extruder_fan_speed)
-		{
-			THEKERNEL->conveyor->wait_for_empty_queue();
-			this->extruder_block_fan_pwm_pin->pwm(extruder_fan_speed);
-			this->extruder_block_fan_state = (extruder_fan_speed > 0);
-			this->extruder_block_fan_value = extruder_fan_speed;
+			//if(extruder_fan_speed < 0) extruder_fan_speed = 0;
+			if(extruder_fan_speed < 30 && this->extruder_temp < 32) extruder_fan_speed = 0;
+			else if(extruder_fan_speed > 255) extruder_fan_speed = 255;
 		}
 
 	}
+
+
+	if(this->extruder_block_fan_value != extruder_fan_speed)
+	{
+		THEKERNEL->conveyor->wait_for_empty_queue();
+		this->extruder_block_fan_pwm_pin->pwm(extruder_fan_speed);
+		this->extruder_block_fan_state = (extruder_fan_speed > 0);
+		this->extruder_block_fan_value = extruder_fan_speed;
+	}
+
 
 	//THEKERNEL->streams->printf("Extruder Temp: %f\n",extruder_temp);
 	//float block_fan_speed = extruder_temp*5.77 - 281.15;
