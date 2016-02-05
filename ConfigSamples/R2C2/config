@@ -26,15 +26,15 @@ alpha_step_pin                               1.20              # Pin for alpha s
 alpha_dir_pin                                1.23!             # Pin for alpha stepper direction
 alpha_en_pin                                 1.24             # Pin for alpha enable pin
 alpha_current                                1.0              # X stepper motor current
-x_axis_max_speed                             30000            # mm/min
-alpha_max_rate                               30000.0          # mm/min actuator max speed
+x_axis_max_speed                             20000            # mm/min
+alpha_max_rate                               20000.0          # mm/min actuator max speed
 
 beta_step_pin                                1.25              # Pin for beta stepper step signal
 beta_dir_pin                                 1.26!             # Pin for beta stepper direction
 beta_en_pin                                  1.28             # Pin for beta enable
 beta_current                                 1.0              # Y stepper motor current
-y_axis_max_speed                             30000            # mm/min
-beta_max_rate                                30000.0          # mm/min actuator max speed
+y_axis_max_speed                             20000            # mm/min
+beta_max_rate                                20000.0          # mm/min actuator max speed
 
 gamma_step_pin                               1.29              # Pin for gamma stepper step signal
 gamma_dir_pin                                0.0!             # Pin for gamma stepper direction
@@ -44,7 +44,7 @@ z_axis_max_speed                             10000              # mm/min
 gamma_max_rate                               20000.0            # mm/min actuator max speed
 
 # Serial communications configuration ( baud rate default to 9600 if undefined )
-uart3.baud_rate                              230400           # Baud rate for the default hardware serial port
+uart0.baud_rate                              230400           # Baud rate for the default hardware serial port
 second_usb_serial_enable                     false            # This enables a second usb serial port (to have both pronterface and a terminal connected)
 
 #msd_disable                                 false            # disable the MSD (USB SDCARD) when set to true
@@ -53,28 +53,15 @@ dfu_enable                                  false            # for linux develop
 #watchdog_timeout                            10               # watchdog timeout in seconds, default is 10, set to 0 to disable the watchdog
 
 # Extruder module configuration
-extruder_module_enable                       true             # Whether to activate the extruder module at all. All configuration is ignored if false
-extruder_steps_per_mm                        441.3897              # Steps per mm for extruder stepper
-extruder_default_feed_rate                   200              # Default rate ( mm/minute ) for moves where only the extruder moves
-extruder_acceleration                        500              # Acceleration in mm/sec^2, only used for retracts
-extruder_max_speed                           1000             # mm/sec NOTE only used for retracts
+extruder.hotend.enable                          true             # Whether to activate the extruder module at all. All configuration is ignored if false
+extruder.hotend.steps_per_mm                    441.3897              # Steps per mm for extruder stepper
+extruder.hotend.default_feed_rate               200              # Default rate ( mm/minute ) for moves where only the extruder moves
+extruder.hotend.acceleration                    500              # Acceleration for the stepper motor mm/sec²
+extruder.hotend.max_speed                       1000               # mm/s
 
-extruder_step_pin                            0.10              # Pin for extruder step signal
-extruder_dir_pin                             0.11              # Pin for extruder dir signal
-extruder_en_pin                              2.10              # Pin for extruder enable signal
-delta_current                                1.0              # Extruder stepper motor current
-
-# Laser module configuration
-laser_module_enable                          false            # Whether to activate the laser module at all. All configuration is
-                                                              # ignored if false.
-#laser_module_pin                             2.5             # this pin will be PWMed to control the laser. Only P2.0 - P2.5, P1.18, P1.20, P1.21, P1.23, P1.24, P1.26, P3.25, P3.26
-                                                              # can be used since laser requires hardware PWM
-#laser_module_maximum_power                   1.0             # this is the maximum duty cycle that will be applied to the laser
-#laser_module_minimum_power                   0.0             # This is a value just below the minimum duty cycle that keeps the laser
-                                                              # active without actually burning.
-#laser_module_default_power                   0.8             # This is the default laser power that will be used for cuts if a power has not been specified.  The value is a scale between
-                                                              # the maximum and minimum power levels specified above
-#laser_module_pwm_period                      20              # this sets the pwm frequency as the period in microseconds
+extruder.hotend.step_pin                        0.10              # Pin for extruder step signal
+extruder.hotend.dir_pin                         0.11             # Pin for extruder dir signal
+extruder.hotend.en_pin                          2.10             # Pin for extruder enable signal
 
 # Hotend temperature control configuration
 temperature_control.hotend.enable            true             # Whether to activate this ( "hotend" ) module at all. All configuration is ignored if false.
@@ -94,74 +81,23 @@ temperature_control.hotend.p_factor          13.7             #
 temperature_control.hotend.i_factor          0.097            #
 temperature_control.hotend.d_factor          24               #
 
-temperature_control.bed.enable               false            #
-temperature_control.bed.thermistor_pin       0.3             #
-temperature_control.bed.heater_pin           2.5              #
-temperature_control.bed.thermistor           Honeywell100K    # see http://smoothieware.org/temperaturecontrol#toc5
-#temperature_control.bed.beta                4066             # or set the beta value
-temperature_control.bed.r2		     10000
-
-temperature_control.bed.set_m_code           140              #
-temperature_control.bed.set_and_wait_m_code  190              #
-temperature_control.bed.designator           B                #
-
-# Switch module for fan control
-switch.fan.enable                            false             #
-switch.fan.input_on_command                  M106             #
-switch.fan.input_off_command                 M107             #
-switch.fan.output_pin                        2.3              #
-
-switch.misc.enable                           false            #
-switch.misc.input_on_command                 M42              #
-switch.misc.input_off_command                M43              #
-switch.misc.output_pin                       2.7              #
-
-# automatically toggle a switch at a specified temperature. Different ones of these may be defined to monitor different temperatures and switch different swithxes
-# useful to turn on a fan or water pump to cool the hotend
-#temperatureswitch.hotend.enable                true             #
-#temperatureswitch.hotend.designator          T                # first character of the temperature control designator to use as the temperature sensor to monitor
-#temperatureswitch.hotend.switch              misc             # select which switch to use, matches the name of the defined switch
-#temperatureswitch.hotend.threshold_temp      60.0             # temperature to turn on (if rising) or off the switch
-#temperatureswitch.hotend.heatup_poll         15               # poll heatup at 15 sec intervals
-#temperatureswitch.hotend.cooldown_poll       60               # poll cooldown at 60 sec intervals
-
-# filament out detector
-#filament_detector.enable                     true             #
-#filament_detector.encoder_pin                0.26             # must be interrupt enabled pin (0.26, 0.27, 0.28)
-#filament_detector.seconds_per_check          2                # may need to be longer
-#filament_detector.pulses_per_mm              1 .0             # will need to be tuned
-#filament_detector.bulge_pin                  0.27             # optional bulge detector switch and/or manual suspend
-
-# Switch module for spindle control
-#switch.spindle.enable                        false            #
-
 # Endstops
 endstops_enable                              true             # the endstop module is enabled by default and can be disabled here
-#corexy_homing                               false            # set to true if homing on a hbit or corexy
 alpha_min_endstop                            2.6!^            # add a ! to invert if endstop is NO connected to ground
-#alpha_max_endstop                           1.24^            #
+alpha_max_endstop                           nc            #
 alpha_homing_direction                       home_to_min      # or set to home_to_max and set alpha_max
-alpha_min                                    -95                # this gets loaded after homing when home_to_min is set
+alpha_min                                    -96                # this gets loaded after homing when home_to_min is set
 alpha_max                                    190              # this gets loaded after homing when home_to_max is set
 beta_min_endstop                             2.7!^            #
-#beta_max_endstop                            1.26^            #
+beta_max_endstop                            nc            #
 beta_homing_direction                        home_to_min      #
-beta_min                                     -65                #
+beta_min                                     -74.5                #
 beta_max                                     130              #
-#gamma_min_endstop                            2.8!^            #
+gamma_min_endstop                            nc            #
 gamma_max_endstop                            2.8!^            #
 gamma_homing_direction                       home_to_max      #
 gamma_min                                    0                #
 gamma_max                                    123.5              #
-
-# optional enable limit switches, actions will stop if any enabled limit switch is triggered
-#alpha_limit_enable                          false            # set to true to enable X min and max limit switches
-#beta_limit_enable                           false            # set to true to enable Y min and max limit switches
-#gamma_limit_enable                          false            # set to true to enable Z min and max limit switches
-#move_to_origin_after_home                   false            # move XY to 0,0 after homing
-
-#probe endstop
-#probe_pin                                   1.29             # optional pin for probe
 
 alpha_fast_homing_rate_mm_s                  50               # feedrates in mm/second
 beta_fast_homing_rate_mm_s                   50               # "
@@ -174,50 +110,39 @@ alpha_homing_retract_mm                      5                # distance in mm
 beta_homing_retract_mm                       5                # "
 gamma_homing_retract_mm                      1                # "
 
-#endstop_debounce_count                       100              # uncomment if you get noise on your endstops, default is 100
-
 # optional Z probe
-zprobe.enable                                false           # set to true to enable a zprobe
-zprobe.probe_pin                             1.29!^          # pin probe is attached to if NC remove the !
+zprobe.enable                                true           # set to true to enable a zprobe
+zprobe.probe_pin                             nc          	# pin probe is attached to if NC remove the !
 zprobe.slow_feedrate                         5               # mm/sec probe feed rate
 #zprobe.debounce_count                       100             # set if noisy
 zprobe.fast_feedrate                         100             # move feedrate mm/sec
 zprobe.probe_height                          5               # how much above bed to start probe
 
-# associated with zprobe the leveling strategy to use
-#leveling-strategy.three-point-leveling.enable         true        # a leveling strategy that probes three points to define a plane and keeps the Z parallel to that plane
-#leveling-strategy.three-point-leveling.point1         100.0,0.0   # the first probe point (x,y) optional may be defined with M557
-#leveling-strategy.three-point-leveling.point2         200.0,200.0 # the second probe point (x,y)
-#leveling-strategy.three-point-leveling.point3         0.0,200.0   # the third probe point (x,y)
-#leveling-strategy.three-point-leveling.home_first     true        # home the XY axis before probing
-#leveling-strategy.three-point-leveling.tolerance      0.03        # the probe tolerance in mm, anything less that this will be ignored, default is 0.03mm
-#leveling-strategy.three-point-leveling.probe_offsets  0,0,0       # the probe offsets from nozzle, must be x,y,z, default is no offset
-#leveling-strategy.three-point-leveling.save_plane     false       # set to true to allow the bed plane to be saved with M500 default is false
+leveling-strategy.ZGrid-leveling.enable         true
+leveling-strategy.ZGrid-leveling.bed_x           180
+leveling-strategy.ZGrid-leveling.bed_y           120
+leveling-strategy.ZGrid-leveling.bed_z           120
 
 
-# kill button (used to be called pause) maybe assigned to a different pin, set to the onboard pin by default
-kill_button_enable                           false             # set to true to enable a kill button
-kill_button_pin                              2.12             # kill button pin. default is same as pause button 2.12 (2.11 is another good choice)
+leveling-strategy.ZGrid-leveling.center_zero        true
 
-# Azteeg specific settings do not change
-currentcontrol_module_enable                 false            #
-digipot_max_current                          2.4             # max current
-digipot_factor                               106.0           # factor for converting current to digipot value
+leveling-strategy.ZGrid-leveling.rows           3          # X divisions (Default 5)
+leveling-strategy.ZGrid-leveling.cols           3          # Y divisions (Default 5)
+
+leveling-strategy.ZGrid-leveling.wait_for_probe  false
 
 #
 #		BEEVERYCREATIVE Module Configs
 #
-beethefirst.enable			     true
-beethefirst.model			     PLUS
+beethefirst.enable						true
+beethefirst.model						PLUS
 
-#Blower
-beethefirst.blower_on_command                M106             #
-beethefirst.blower_off_command               M107             #
-beethefirst.blower_enable_pin		     1.1
-beethefirst.blower_startup_state	     false
-beethefirst.blower_pwm_pin		     2.3
+#	Blower
+beethefirst.blower.enable_pin					1.1		#1.1
+beethefirst.blower.startup_state				false
+beethefirst.blower.pwm_pin					2.3		#2.3
 
-#Extruder Block Thermistor
+#	Extruder Block Thermistor
 beethefirst.extruder_block_thermistor.enable			true
 beethefirst.extruder_block_thermistor.thermistor_pin		0.3             #
 beethefirst.extruder_block_thermistor.heater_pin		2.5              #
@@ -225,4 +150,7 @@ beethefirst.extruder_block_thermistor.thermistor		Honeywell100K    # see http://
 #beethefirst.extruder_block_thermistor.beta			4066             # or set the beta value
 beethefirst.extruder_block_thermistor.r2			10000
 
+beethefirst.extruder_block_fan.enable_pin			1.10		#1.10
+beethefirst.extruder_block_fan.startup_state			true
+beethefirst.extruder_block_fan.pwm_pin				2.1		#2.1
 

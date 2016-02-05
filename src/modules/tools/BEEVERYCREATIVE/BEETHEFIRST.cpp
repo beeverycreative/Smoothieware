@@ -15,6 +15,11 @@
 #include "StreamOutput.h"
 #include "StreamOutputPool.h"
 
+#include "libs/FileStream.h"
+#include "libs/AppendFileStream.h"
+#include "libs/StreamOutput.h"
+#include "libs/StreamOutputPool.h"
+
 #include "PwmOut.h"
 
 #include "MRI_Hooks.h"
@@ -289,6 +294,44 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 			this->extruder_block_fan_auto_mode = false;
 			this->extruder_block_fan_value = 0.0;
 
+		}
+		break;
+
+		//M640 - Pause Print
+		case 640:
+		{
+			__disable_irq();
+			string upload_filename;
+			FILE *upload_fd;
+			StreamOutput* upload_stream{nullptr};
+
+			upload_filename = "/sd/BEEVERYCREATIVE.txt";
+
+			string single_command;
+			single_command = "M640\n";
+			static int cnt = 0;
+
+			if(fwrite(single_command.c_str(), 1, single_command.size(), upload_fd) != single_command.size()) {
+				// error writing to file
+				THEKERNEL->streams->printf("Error:error writing to file.\r\n");
+				fclose(upload_fd);
+				upload_fd = NULL;
+				break;
+
+			} else {
+				cnt += single_command.size();
+				if (cnt > 400) {
+					// HACK ALERT to get around fwrite corruption close and re open for append
+					fclose(upload_fd);
+					upload_fd = fopen(upload_filename.c_str(), "a");
+					cnt = 0;
+				}
+				THEKERNEL->streams->printf("ok\r\n");
+				//printf("uploading file write ok\n");
+			}
+			__enable_irq();
+
+			THEKERNEL->streams->printf("Settings Stored to BEEVERYCREATIVE.txt\r\nok\r\n");
 		}
 		break;
 
