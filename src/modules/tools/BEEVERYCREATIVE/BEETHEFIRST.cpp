@@ -14,6 +14,7 @@
 #include "ConfigValue.h"
 #include "StreamOutput.h"
 #include "StreamOutputPool.h"
+#include "Robot.h"
 
 #include "libs/FileStream.h"
 #include "libs/AppendFileStream.h"
@@ -56,7 +57,7 @@ void BEETHEFIRST::on_module_loaded()
 
 		this->register_for_event(ON_HALT);
 		this->register_for_event(ON_MAIN_LOOP);
-		this->register_for_event(ON_GCODE_EXECUTE);
+		//this->register_for_event(ON_GCODE_EXECUTE);
 		this->register_for_event(ON_GCODE_RECEIVED);
 		this->register_for_event(ON_GET_PUBLIC_DATA);
 		this->register_for_event(ON_SET_PUBLIC_DATA);
@@ -163,7 +164,7 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 				initial_z = gcode->get_value('Z');
 			}
 
-			THEKERNEL->conveyor->wait_for_empty_queue();
+			//THEKERNEL->conveyor->wait_for_empty_queue();
 			//send_gcode("M204 S400 Z400");
 			send_gcode("G0 X0 Y65 Z%f F10000",initial_z);
 			//send_gcode("M204 S1000 Z1000");
@@ -177,15 +178,18 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 			{
 			case 0:
 			{
-				THEKERNEL->conveyor->wait_for_empty_queue();
+				//THEKERNEL->conveyor->wait_for_empty_queue();
 				send_gcode("M306 Z0");
 				send_gcode("M500");
 
-				THEKERNEL->conveyor->wait_for_empty_queue();
+				THECONVEYOR->wait_for_idle();
+				THEROBOT->pop_state();
+
+				//THEKERNEL->conveyor->wait_for_empty_queue();
 				send_gcode("G0 Z10 F1000");
-				THEKERNEL->conveyor->wait_for_empty_queue();
+				//THEKERNEL->conveyor->wait_for_empty_queue();
 				send_gcode("G0 X-30 Y-65 F15000");
-				THEKERNEL->conveyor->wait_for_empty_queue();
+				//THEKERNEL->conveyor->wait_for_empty_queue();
 				send_gcode("G0 Z0 F1000");
 
 				this->currentCalibrationState ++;
@@ -193,11 +197,11 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 			break;
 			case 1:
 			{
-				THEKERNEL->conveyor->wait_for_empty_queue();
+				//THEKERNEL->conveyor->wait_for_empty_queue();
 				send_gcode("G0 Z10 F1000");
-				THEKERNEL->conveyor->wait_for_empty_queue();
+				//THEKERNEL->conveyor->wait_for_empty_queue();
 				send_gcode("G0 X30 Y-65 F15000");
-				THEKERNEL->conveyor->wait_for_empty_queue();
+				//THEKERNEL->conveyor->wait_for_empty_queue();
 				send_gcode("G0 Z0 F1000");
 
 				this->currentCalibrationState ++;
@@ -205,7 +209,7 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 			break;
 			case 2:
 			{
-				THEKERNEL->conveyor->wait_for_empty_queue();
+				//THEKERNEL->conveyor->wait_for_empty_queue();
 				send_gcode("G28");
 			}
 			break;
@@ -238,13 +242,13 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 				int v = (gcode->get_int('S') * this->blower_pwm_pin->max_pwm()) / 255; // scale by max_pwm so input of 255 and max_pwm of 128 would set value to 128
 				if(v != this->blower_pwm_pin->get_pwm()){ // optimize... ignore if already set to the same pwm
 					// drain queue
-					THEKERNEL->conveyor->wait_for_empty_queue();
+					//THEKERNEL->conveyor->wait_for_empty_queue();
 					this->blower_pwm_pin->pwm(v);
 					this->blower_state = (v > 0);
 				}
 			} else {
 				// drain queue
-				THEKERNEL->conveyor->wait_for_empty_queue();
+				//THEKERNEL->conveyor->wait_for_empty_queue();
 				this->blower_pwm_pin->pwm(this->blower_value);
 				this->blower_state = (this->blower_value > 0);
 			}
@@ -256,7 +260,7 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 		{
 			this->blower_on_pin->set(false);
 			// drain queue
-			THEKERNEL->conveyor->wait_for_empty_queue();
+			//THEKERNEL->conveyor->wait_for_empty_queue();
 			this->blower_state = false;
 			this->blower_pwm_pin->set(false);
 		}
@@ -272,7 +276,7 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 				int v = (gcode->get_int('S') * this->extruder_block_fan_pwm_pin->max_pwm()) / 255; // scale by max_pwm so input of 255 and max_pwm of 128 would set value to 128
 				if(v != this->extruder_block_fan_pwm_pin->get_pwm()){ // optimize... ignore if already set to the same pwm
 					// drain queue
-					THEKERNEL->conveyor->wait_for_empty_queue();
+					//THEKERNEL->conveyor->wait_for_empty_queue();
 					this->extruder_block_fan_pwm_pin->pwm(v);
 					this->extruder_block_fan_state = (v > 0);
 				}
@@ -288,7 +292,7 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 		{
 			this->extruder_block_fan_on_pin->set(false);
 			// drain queue
-			THEKERNEL->conveyor->wait_for_empty_queue();
+			//THEKERNEL->conveyor->wait_for_empty_queue();
 			this->extruder_block_fan_state = false;
 			this->extruder_block_fan_pwm_pin->set(false);
 			this->extruder_block_fan_auto_mode = false;
@@ -339,7 +343,7 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 		case 701:
 		{
 			// drain queue
-			THEKERNEL->conveyor->wait_for_empty_queue();
+			//THEKERNEL->conveyor->wait_for_empty_queue();
 			this->send_gcode("G0 E65 F300");
 			this->send_gcode("G90");
 			this->send_gcode("G92 E0");
@@ -350,7 +354,7 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 		case 702:
 		{
 			// drain queue
-			THEKERNEL->conveyor->wait_for_empty_queue();
+			//THEKERNEL->conveyor->wait_for_empty_queue();
 			this->send_gcode("G91");
 			this->send_gcode("G0 E15 F300");
 			this->send_gcode("G0 E-23 F1000");
@@ -359,7 +363,7 @@ void BEETHEFIRST::on_gcode_received(void *argument)
 			this->send_gcode("G0 E-50 F200");
 			this->send_gcode("G90");
 			this->send_gcode("G92 E0");
-			THEKERNEL->conveyor->wait_for_empty_queue();
+			//THEKERNEL->conveyor->wait_for_empty_queue();
 		}
 		break;
 
@@ -425,10 +429,13 @@ void BEETHEFIRST::on_second_tick(void *argument)
 
 	if(this->extruder_block_fan_value != extruder_fan_speed)
 	{
-		THEKERNEL->conveyor->wait_for_empty_queue();
-		this->extruder_block_fan_pwm_pin->pwm(extruder_fan_speed);
-		this->extruder_block_fan_state = (extruder_fan_speed > 0);
-		this->extruder_block_fan_value = extruder_fan_speed;
+		if (!THEKERNEL->conveyor->is_queue_full())
+		{
+			this->extruder_block_fan_pwm_pin->pwm(extruder_fan_speed);
+					this->extruder_block_fan_state = (extruder_fan_speed > 0);
+					this->extruder_block_fan_value = extruder_fan_speed;
+		}
+
 	}
 
 
